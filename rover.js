@@ -1,5 +1,8 @@
+// Requires the library from http://underscorejs.org/ to use the .intersection()
+var _ = require('underscore');
+
 var myGrid = {
-  size: 10,
+  size: 15,
   obstacles: [[5,5], [2,2], [6,6], [4,4]]
 };
 
@@ -57,22 +60,25 @@ function isBlocked(rover, grid) {
       if (rover.position[0] - 1 === grid.obstacles[obstacle][0] &&
         rover.position[1] === grid.obstacles[obstacle][1]) {
         console.log("Obstacle on my way. I STOP.");
-        return ;
+        return true;
       }
       break;
     case 'W':
       if (rover.position[1] - 1 === grid.obstacles[obstacle][1] &&
         rover.position[0] === grid.obstacles[obstacle][0]) {
         console.log("Obstacle on my way. I STOP.");
-        return false;
+        return true;
       }
       break;
     }
   }
-  return true;
+  return false;
 }
 
 function goForward(rover) {
+  if (isBlocked(rover, myGrid)) {
+      return;
+  }
   switch(rover.direction) {
     case 'N':
       rover.position[0]++;
@@ -91,6 +97,9 @@ function goForward(rover) {
 }
 
 function goBack(rover) {
+  if (isBlocked(rover, myGrid)) {
+      return;
+  }
   switch(rover.direction) {
     case 'N':
       rover.position[0]--;
@@ -151,7 +160,7 @@ function getInput(rover, directions) {
               "   ||   Initial Rover Direction: " + rover.direction);
 
   for (var order  = 0; order < directions.length; order++) {
-    if (!isBlocked(rover, myGrid)) {
+    if (isBlocked(rover, myGrid)) {
         return;
     }
     switch( directions[order].toLowerCase()) {
