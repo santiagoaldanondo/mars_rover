@@ -1,0 +1,26 @@
+div {
+  text-align: center;
+  font-weight: 900;
+  font-size: 32;
+  color: red;
+}
+
+img {
+  display: none;
+}
+
+#north, #south {
+  clear: both;
+  width: 560px;
+}
+
+#east, #west {
+  float: left;
+  height: 400px;
+  line-height: 400px;
+  width: 80px;
+}
+
+#myCanvas {
+  float: left;
+}

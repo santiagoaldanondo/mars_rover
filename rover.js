@@ -1,188 +1,300 @@
-// Requires the library from http://underscorejs.org/ to use the .intersection()
-var _ = require('underscore');
+// Check widths to be changed by heights in drawings
 
 var myGrid = {
-  size: 15,
+  size: 8,
   obstacles: [[5,5], [2,2], [6,6], [4,4]]
 };
 
 var myRover = {
-  position: [0,0],
+  position: [3,4],
+  nextPosition: [0,0],
   direction: 'N'
 };
 
-// Takes back to the grid if off limits
-function adjustToGrid(rover, grid) {
-  if (rover.position[0] < 0) {
-    rover.position[0] %= grid.size;
-    rover.position[0] += grid.size;
-  }
-  else {
-    rover.position[0] %= grid.size;
-  }
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
 
-  if (rover.position[1] < 0) {
-    rover.position[1] %= grid.size;
-    rover.position[1] += grid.size;
-  }
-  else {
-    rover.position[1] %= grid.size;
-  }
-}
+// onload is used to wait for the execution until the DOM and images are ready
+window.onload = function() {
+  var rock = document.getElementById("rock");
+    var spaceship = document.getElementById("spaceship");
 
-function currentPosition(rover) {
-  adjustToGrid(rover, myGrid);
-  console.log("New Rover Position: [" + rover.position[0] + ", " + rover.position[1] + "]");
-}
+};
 
-function currentDirection(rover) {
-  console.log("New Rover Direction: " + rover.direction);
-}
 
-function isBlocked(rover, grid) {
-  for (var obstacle = 0; obstacle < grid.obstacles.length; obstacle++) {
+// Draws a rotated image for the rover
+function drawRotatedImage(grid, rover, image, x, y, width, height) {
+
+  // Create variable angle pointing in the rover.direction
+
+  var angle = 0;
   switch(rover.direction) {
     case 'N':
-      if (rover.position[0] + 1 === grid.obstacles[obstacle][0] &&
-        rover.position[1] === grid.obstacles[obstacle][1]) {
-        console.log("Obstacle on my way. I STOP.");
-        return true;
-      }
-      break;
+    angle = 0;
+    break;
     case 'E':
-      if (rover.position[1] + 1 === grid.obstacles[obstacle][1] &&
-        rover.position[0] === grid.obstacles[obstacle][0]) {
-        console.log("Obstacle on my way. I STOP.");
-        return true;
-      }
-      break;
+    angle = 90;
+    break;
     case 'S':
-      if (rover.position[0] - 1 === grid.obstacles[obstacle][0] &&
-        rover.position[1] === grid.obstacles[obstacle][1]) {
-        console.log("Obstacle on my way. I STOP.");
-        return true;
-      }
-      break;
+    angle = 180;
+    break;
     case 'W':
-      if (rover.position[1] - 1 === grid.obstacles[obstacle][1] &&
-        rover.position[0] === grid.obstacles[obstacle][0]) {
-        console.log("Obstacle on my way. I STOP.");
-        return true;
-      }
-      break;
+    angle = 270;
+    break;
+  }
+
+	// save the current co-ordinate system
+	// before we screw with it
+	ctx.save();
+
+	// move to the middle of where we want to draw our image
+	ctx.translate(x, y);
+
+	// rotate around that point, converting our
+	// angle from degrees to radians
+	ctx.rotate(angle*Math.PI/180);
+
+	// draw it up and to the left by half the width
+	// and height of the image
+	ctx.drawImage(image, -canvas.width/grid.size/2, -canvas.width/grid.size/2, width, height);
+
+  // Restore the co-ords to how they were before rotateImage
+  ctx.restore();
+
+}
+
+// Takes back the rover.nextPosition to the grid if it is out of boundaries
+function adjustToGrid(grid, rover) {
+  if (rover.nextPosition[0] < 0) {
+    rover.nextPosition[0] %= grid.size;
+    rover.nextPosition[0] += grid.size;
+  }
+  else {
+    rover.nextPosition[0] %= grid.size;
+  }
+
+  if (rover.nextPosition[1] < 0) {
+    rover.nextPosition[1] %= grid.size;
+    rover.nextPosition[1] += grid.size;
+  }
+  else {
+    rover.nextPosition[1] %= grid.size;
+  }
+}
+
+// Checks if a position is blocked by an obstacle
+function isBlocked(grid, firstCoord, secondCoord) {
+  for (var obstacle = 0; obstacle < grid.obstacles.length; obstacle++) {
+    if ((firstCoord == grid.obstacles[obstacle][0]) &&
+    (secondCoord == grid.obstacles[obstacle][1])) {
+      return true;
     }
   }
   return false;
 }
 
-function goForward(rover) {
-  if (isBlocked(rover, myGrid)) {
-      return;
-  }
-  switch(rover.direction) {
-    case 'N':
-      rover.position[0]++;
-      break;
-    case 'E':
-      rover.position[1]++;
-      break;
-    case 'S':
-      rover.position[0]--;
-      break;
-    case 'W':
-      rover.position[1]--;
-      break;
-  }
-  currentPosition(rover);
+// Prints current position to console
+function getPosition(grid, rover) {
+  console.log("New Rover Position: [" + rover.position[0] + ", " + rover.position[1] + "]");
 }
 
-function goBack(rover) {
-  if (isBlocked(rover, myGrid)) {
-      return;
-  }
-  switch(rover.direction) {
-    case 'N':
-      rover.position[0]--;
-      break;
-    case 'E':
-      rover.position[1]--;
-      break;
-    case 'S':
-      rover.position[0]++;
-      break;
-    case 'W':
-      rover.position[1]++;
-      break;
-  }
-  currentPosition(rover);
+// Prints current direction to console
+function getDirection(grid, rover) {
+  console.log("New Rover Direction: " + rover.direction);
 }
 
-// Implement commands to turn the rover left or right (l,r)
+// Moves forward (towards the current direction)
+function goForward(grid, rover) {
 
-function turnLeft(rover) {
-  switch(rover.direction) {
-    case 'N':
-      rover.direction = 'W';
-      break;
-    case 'E':
-      rover.direction = 'N';
-      break;
-    case 'S':
-      rover.direction = 'E';
-      break;
-    case 'W':
-      rover.direction = 'S';
-      break;
-  }
-  currentDirection(rover);
-}
-
-function turnRight(rover) {
-  switch(rover.direction) {
-    case 'N':
-      rover.direction = 'E';
-      break;
-    case 'E':
-      rover.direction = 'S';
-      break;
-    case 'S':
-      rover.direction = 'W';
-      break;
-    case 'W':
-      rover.direction = 'N';
-      break;
-  }
-  currentDirection(rover);
-}
-
-function getInput(rover, directions) {
-  console.log("Initial Rover Position: " + rover.position +
-              "   ||   Initial Rover Direction: " + rover.direction);
-
-  for (var order  = 0; order < directions.length; order++) {
-    if (isBlocked(rover, myGrid)) {
-        return;
+    rover.nextPosition[0] = rover.position[0];
+    rover.nextPosition[1] = rover.position[1];
+    switch(rover.direction) {
+      case 'N':
+        rover.nextPosition[1]--;
+        break;
+      case 'E':
+        rover.nextPosition[0]++;
+        break;
+      case 'S':
+        rover.nextPosition[1]++;
+        break;
+      case 'W':
+        rover.nextPosition[0]--;
+        break;
     }
+    adjustToGrid(grid, rover);
+    if (isBlocked(myGrid, rover.nextPosition[0], rover.nextPosition[1])) {
+      console.log("Obstacle on the way. Rover stops");
+      return;
+    }
+    drawRotatedImage(grid,
+      rover,
+      spaceship,
+      rover.nextPosition[0]*canvas.width/grid.size+canvas.width/grid.size/2,
+      rover.nextPosition[1]*canvas.width/grid.size+canvas.width/grid.size/2,
+      canvas.width/grid.size,
+      canvas.width/grid.size);
+    ctx.fillStyle = "white";
+    ctx.fillRect(rover.position[0]*canvas.width/grid.size,rover.position[1]*canvas.width/grid.size,canvas.width/grid.size,canvas.width/grid.size);
+    ctx.lineWidth ="1px";
+    ctx.strokeStyle = "grey";
+    ctx.strokeRect(rover.position[0]*canvas.width/grid.size,rover.position[1]*canvas.width/grid.size,canvas.width/grid.size,canvas.width/grid.size);
+    rover.position[0] = rover.nextPosition[0];
+    rover.position[1] = rover.nextPosition[1];
+    getPosition(grid, rover);
+}
+
+// Moves back (against the current direction)
+function goBack(grid, rover) {
+
+    rover.nextPosition[0] = rover.position[0];
+    rover.nextPosition[1] = rover.position[1];
+    switch(rover.direction) {
+      case 'N':
+        rover.nextPosition[1]++;
+        break;
+      case 'E':
+        rover.nextPosition[0]--;
+        break;
+      case 'S':
+        rover.nextPosition[1]--;
+        break;
+      case 'W':
+        rover.nextPosition[0]++;
+        break;
+    }
+    adjustToGrid(grid, rover);
+    if (isBlocked(myGrid, rover.nextPosition[0], rover.nextPosition[1])) {
+      console.log("Obstacle on the way. Rover stops");
+      return;
+    }
+    drawRotatedImage(grid,
+      rover,
+      spaceship,
+      rover.nextPosition[0]*canvas.width/grid.size+canvas.width/grid.size/2,
+      rover.nextPosition[1]*canvas.width/grid.size+canvas.width/grid.size/2,
+      canvas.width/grid.size,
+      canvas.width/grid.size);
+    ctx.fillStyle = "white";
+    ctx.fillRect(rover.position[0]*canvas.width/grid.size,rover.position[1]*canvas.width/grid.size,canvas.width/grid.size,canvas.width/grid.size);
+    ctx.lineWidth ="1px";
+    ctx.strokeStyle = "grey";
+    ctx.strokeRect(rover.position[0]*canvas.width/grid.size,rover.position[1]*canvas.width/grid.size,canvas.width/grid.size,canvas.width/grid.size);
+    rover.position[0] = rover.nextPosition[0];
+    rover.position[1] = rover.nextPosition[1];
+    getPosition(grid, rover);
+}
+
+// Turns left
+function turnLeft(grid, rover) {
+
+  switch(rover.direction) {
+    case 'N':
+      rover.direction = 'W';
+      break;
+    case 'E':
+      rover.direction = 'N';
+      break;
+    case 'S':
+      rover.direction = 'E';
+      break;
+    case 'W':
+      rover.direction = 'S';
+      break;
+  }
+  getDirection(grid, rover);
+  drawRotatedImage(grid,
+    rover,
+    spaceship,
+    rover.position[0]*canvas.width/grid.size+canvas.width/grid.size/2,
+    rover.position[1]*canvas.width/grid.size+canvas.width/grid.size/2,
+    canvas.width/grid.size,
+    canvas.width/grid.size);
+}
+
+// Turns right
+function turnRight(grid, rover) {
+  switch(rover.direction) {
+
+    case 'N':
+      rover.direction = 'E';
+      break;
+    case 'E':
+      rover.direction = 'S';
+      break;
+    case 'S':
+      rover.direction = 'W';
+      break;
+    case 'W':
+      rover.direction = 'N';
+      break;
+  }
+  getDirection(grid, rover);
+  drawRotatedImage(grid,
+    rover,
+    spaceship,
+    rover.position[0]*canvas.width/grid.size+canvas.width/grid.size/2,
+    rover.position[1]*canvas.width/grid.size+canvas.width/grid.size/2,
+    canvas.width/grid.size,
+    canvas.width/grid.size);
+}
+
+// Follows instructions introduced as a string (f:forward, b: back, r: right, l: left)
+function followInstructions(grid, rover, directions) {
+  console.log("Initial Rover Position: [" + rover.position[0] + ", " + rover.position[1] +
+              "]   ||   Initial Rover Direction: " + rover.direction);
+  for (var order  = 0; order < directions.length; order++) {
     switch( directions[order].toLowerCase()) {
       case 'f':
-        goForward(rover);
+        goForward(grid, rover);
         break;
       case 'b':
-        goBack(rover);
+        goBack(grid, rover);
         break;
       case 'l':
-        turnLeft(rover);
+        turnLeft(grid, rover);
         break;
       case 'r':
-        turnRight(rover);
+        turnRight(grid, rover);
         break;
     }
   }
 }
 
+// Creates a map of the grid with obstacles and rover in a canvas
+function map(grid, rover) {
+  for (var i = 0; i < grid.size; i++) {
+    for (var j = 0; j < grid.size; j++) {
+      if (rover.position[0] == j && rover.position[1] == i) {
+        drawRotatedImage(grid,
+          rover,
+          spaceship,
+          rover.position[0]*canvas.width/grid.size+canvas.width/grid.size/2,
+          rover.position[1]*canvas.width/grid.size+canvas.width/grid.size/2,
+          canvas.width/grid.size,
+          canvas.width/grid.size);      }
+      else if (isBlocked(grid, i, j)) {
+        ctx.drawImage(rock, i*canvas.width/grid.size,j*canvas.width/grid.size,canvas.width/grid.size,canvas.width/grid.size);
+      }
+      else {
 
-currentPosition(myRover);
-currentDirection(myRover);
-goForward(myRover);
-goBack(myRover);
-getInput(myRover, 'BBBBBLFFFFFFFFFFFFFRRRRRFFFFFFFFFF');
+      }
+      ctx.lineWidth ="1px";
+      ctx.strokeStyle = "grey";
+      ctx.strokeRect(i*canvas.width/grid.size,j*canvas.width/grid.size,canvas.width/grid.size,canvas.width/grid.size);
+    }
+  }
+}
+
+
+window.onload = function() {
+  // Draw the map with the obstacles and rover
+  map(myGrid, myRover);
+
+  // Check some of the functions
+  getPosition(myGrid, myRover);
+  getDirection(myGrid, myRover);
+  // goForward(myGrid, myRover);
+  // goBack(myGrid, myRover);
+  // followInstructions(myGrid, myRover, 'ffrffllbbbfffffrflrflff');
+};
