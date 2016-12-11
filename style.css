@@ -1,8 +1,16 @@
-div {
+body {
+  font-family: Ubuntu, Arial, sans-serif;
+  font-size: 200%;
+  padding: 20px;
   text-align: center;
-  font-weight: 900;
-  font-size: 32;
-  color: darkolivegreen;
+  font-weight: 700;
+  color: ghostwhite;
+  background-image: url("img/space.jpg");
+}
+
+#container {
+  width: 584px;
+  margin: auto;
 }
 
 img, #myCanvasHidden {
@@ -11,7 +19,7 @@ img, #myCanvasHidden {
 
 #north, #south {
   clear: both;
-  width: 560px;
+  width: 584px;
 }
 
 #east, #west {
@@ -19,8 +27,10 @@ img, #myCanvasHidden {
   height: 400px;
   line-height: 400px;
   width: 80px;
+  margin: 10px 0px;
 }
 
 #myCanvas {
   float: left;
+  margin: 10px;
 }

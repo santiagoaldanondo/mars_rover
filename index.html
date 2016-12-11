@@ -2,22 +2,28 @@
 <head>
 	<meta charset="utf-8">
 	<title>Mars Rover Kata!</title>
+	<link rel="stylesheet" href="cssreset.css">
 	<link rel="stylesheet" href="style.css">
 </head>
 <body>
 	<!-- Tags the images that will be used in the canvas, with display: none in style.css-->
-	<img id="spaceship" src="spaceship.jpg" alt="spaceship"/>
-	<img id="alien" src="alien.png" alt="alien"/>
-	<img id="rock" src="rock.jpg" alt="rock"/>
-	<img id="explosion" src="explosion.jpg" alt="explosion"/>
+	<img id="spaceship" src="img/spaceship.png" alt="spaceship"/>
+	<img id="scorpion" src="img/scorpion.png" alt="scorpion"/>
+	<img id="rock" src="img/rock.png" alt="rock"/>
+	<img id="explosion" src="img/explosion.png" alt="explosion"/>
+	<img id="splash" src="img/splash.png" alt="splash"/>
+	<img id="sand" src="img/sand.jpg" alt="sand"/>
 
-	<!-- Creates the divs for the north, west, east and south points and the canvas for drawing -->
-	<div id="north">North</div>
-	<div id="west">West</div>
-	<canvas id="myCanvas" width="400" height="400" style="border: 2px solid #000000"></canvas>
-	<div id="east">East</div>
-	<div id="south">South</div>
-	<canvas id="myCanvasHidden" width="400" height="400" style="border: 2px solid #000000"></canvas>
+	<div id="container">
+
+		<!-- Creates the divs for the north, west, east and south points and the canvas for drawing -->
+		<div id="north">North</div>
+		<div id="west">West</div>
+		<canvas id="myCanvas" width="400" height="400" style="border: 2px solid #000000"></canvas>
+		<div id="east">East</div>
+		<div id="south">South</div>
+		<canvas id="myCanvasHidden" width="400" height="400" style="border: 2px solid #000000"></canvas>
+	</div>
 
 	<!-- The scripts are inserted at the end to be sure that the variables can be created -->
 	<script type="text/javascript" src="jquery-3.1.1.js"></script>
