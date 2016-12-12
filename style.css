@@ -1,15 +1,19 @@
 body {
   font-family: Ubuntu, Arial, sans-serif;
-  font-size: 200%;
+  background-image: url("img/space.jpg");
+  background-size: 100%;
   padding: 20px;
+}
+
+.cardinal {
+  font-size: 200%;
   text-align: center;
   font-weight: 700;
   color: ghostwhite;
-  background-image: url("img/space.jpg");
 }
 
 #container {
-  width: 584px;
+  width: 684px;
   margin: auto;
 }
 
@@ -17,15 +21,45 @@ img, #myCanvasHidden {
   display: none;
 }
 
-#north, #south {
+.score {
+  float: left;
+  width: 68px;
+  max-width: 68px;
+  font-size: 100%;
+  text-align: left;
+  font-weight: 500;
+  background-color: ghostwhite;
+  border: 2px solid black;
+  padding: 10px;
+}
+
+#value1, #value2 {
+  float: right;
+  display: inline-block;
+}
+
+#score1 {
+  color: darkblue;
+}
+
+#score2 {
+  color: darkred;
+}
+
+#north {
+  float: left;
+  width: 500px;
+}
+
+#south, #upper, .clearer {
   clear: both;
-  width: 584px;
+  width: 684px;
 }
 
 #east, #west {
   float: left;
-  height: 400px;
-  line-height: 400px;
+  height: 500px;
+  line-height: 500px;
   width: 80px;
   margin: 10px 0px;
 }

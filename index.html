@@ -17,13 +17,19 @@
 	<div id="container">
 
 		<!-- Creates the divs for the north, west, east and south points and the canvas for drawing -->
-		<div id="north">North</div>
-		<div id="west">West</div>
-		<canvas id="myCanvas" width="400" height="400" style="border: 2px solid #000000"></canvas>
-		<div id="east">East</div>
-		<div id="south">South</div>
+		<div id="upper">
+			<div class="score" id="score1">Ship: <span id="value1"></span></div>
+			<div class="cardinal" id="north">North</div>
+			<div class="score" id="score2">Alien: <span id="value2"></span></div>
+		</div>
+		<div class="clearer"></div>
+		<div class="cardinal" id="west">West</div>
+		<canvas id="myCanvas" width="500" height="500" style="border: 2px solid #000000"></canvas>
+		<div class="cardinal" id="east">East</div>
+		<div class="cardinal" id="south">South</div>
 		<canvas id="myCanvasHidden" width="400" height="400" style="border: 2px solid #000000"></canvas>
 	</div>
+	<p></p>
 
 	<!-- The scripts are inserted at the end to be sure that the variables can be created -->
 	<script type="text/javascript" src="jquery-3.1.1.js"></script>
