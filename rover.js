@@ -33,7 +33,8 @@ var myGrid = {
 
 // Defines the rovers, with their name, current position, their nextPosition where they have to move,
 // the direction they are pointing, their alive and dead images, a message and color in case they crash,
-// their enemy, their score and the name of the variable holding that score
+// their enemy, their score and the name of the variable holding that score, and the boolean automated
+// showing if they are on autoMove
 var myRover1 = {
   name: "Ship",
   position: [],
@@ -45,7 +46,8 @@ var myRover1 = {
   color: "darkred",
   enemy: "",
   score: 0,
-  valueName: "#value1"
+  valueName: "#value1",
+  automated: false
 };
 
 var myRover2 = {
@@ -59,7 +61,8 @@ var myRover2 = {
   color: "darkblue",
   enemy: "",
   score: 0,
-  valueName: "#value2"
+  valueName: "#value2",
+  automated: false
 };
 
 myRover1.enemy = myRover2;
@@ -79,7 +82,7 @@ function setOrigin(grid, rover) {
   rover.direction = cardinalPoints[Math.floor(Math.random()*4)];
 }
 
-// Sets the obstacles in the grid
+// Creates obstacles in the grid
 function setObstacles(grid){
   numberObstacles = Math.floor(Math.random()*Math.pow(grid.size,2)/10+Math.pow(grid.size,2)/20);
   for (var i = 0; i < numberObstacles; i++) {
@@ -162,6 +165,84 @@ function isOther(grid, rover, firstCoord, secondCoord) {
   return false;
 }
 
+// Runs if isBlocked is true in goForward or goBack
+function runIfBlocked(grid, rover) {
+  if (!rover.automated) {
+    console.log(rover.name + " " + rover.message);
+    ctx.drawImage(rover.dead,
+      rover.position[0]*canvas.width/grid.size-0.5*canvas.width/grid.size/2,
+      rover.position[1]*canvas.height/grid.size-0.5*canvas.height/grid.size/2,
+      1.5*canvas.width/grid.size,
+      1.5*canvas.height/grid.size);
+
+    // Final message asking to reload page
+    ctx.fillStyle = rover.color;
+    ctx.font = 0.07*canvas.width +"px Ubuntu";
+    ctx.textAlign = "center";
+    ctx.fillText(rover.name + " " + rover.message,0.5*canvas.width,0.4*canvas.height);
+    ctx.fillText("Press enter to continue",0.5*canvas.width,0.6*canvas.height);
+
+    // Changes variable theEnd to true
+    theEnd = true;
+
+    // Adds one point to the other rover's score
+    rover.enemy.score+=1;
+    $(rover.enemy.valueName).html(rover.enemy.score);
+  }
+}
+
+// Runs if isOther is true in goForward or goBack
+function runIfOther(grid, rover) {
+  console.log(rover.enemy.name + " was destroyed by " + rover.name);
+  ctx.drawImage(rover.enemy.dead,
+    rover.enemy.position[0]*canvas.width/grid.size-0.5*canvas.width/grid.size/2,
+    rover.enemy.position[1]*canvas.height/grid.size-0.5*canvas.height/grid.size/2,
+    1.5*canvas.width/grid.size,
+    1.5*canvas.height/grid.size);
+
+  // Final message asking to reload page
+  ctx.fillStyle = rover.enemy.color;
+  ctx.font = 0.07*canvas.width +"px Ubuntu";
+  ctx.textAlign = "center";
+  ctx.fillText(rover.enemy.name + " was destroyed by " + rover.name,0.5*canvas.width,0.4*canvas.height);
+  ctx.fillText("Press enter to continue",0.5*canvas.width,0.6*canvas.height);
+
+  // Changes variable theEnd to true
+  theEnd = true;
+
+  // Adds one point to this rover's score
+  rover.score+=1;
+  $(rover.valueName).html(rover.score);
+}
+
+// Runs if the rover finally moves in goForward or goBack
+function runIfGo(grid, rover) {
+  // Draws the background in the rover's position (which is moving to nextPosition)
+  ctx.drawImage(grid.background,
+    rover.position[0]*canvas.width/grid.size,
+    rover.position[1]*canvas.height/grid.size,
+    canvas.width/grid.size,
+    canvas.height/grid.size);ctx.lineWidth ="1px";
+  ctx.strokeStyle = "grey";
+  ctx.strokeRect(rover.position[0]*canvas.width/grid.size,rover.position[1]*canvas.height/grid.size,canvas.width/grid.size,canvas.height/grid.size);
+
+  // Draws the rover in the nextPosition
+  drawRotatedImage(grid,
+    rover,
+    rover.alive,
+    rover.nextPosition[0]*canvas.width/grid.size+canvas.width/grid.size/2,
+    rover.nextPosition[1]*canvas.height/grid.size+canvas.height/grid.size/2,
+    canvas.width/grid.size,
+    canvas.height/grid.size);
+
+  // Updates position with nextPosition
+  rover.position[0] = rover.nextPosition[0];
+  rover.position[1] = rover.nextPosition[1];
+
+  // Prints position to console
+  printPosition(grid, rover);
+}
+
 // Prints current position to console
 function printPosition(grid, rover) {
   console.log("New " + rover.name + " Position: [" + rover.position[0] + ", " + rover.position[1] + "]");
@@ -205,80 +286,16 @@ function goForward(grid, rover) {
 
   // In case the nextPosition is blocked by an obstacle, the rover explodes and loses the game
   if (isBlocked(myGrid, rover.nextPosition[0], rover.nextPosition[1])) {
-    console.log(rover.name + " " + rover.message);
-    ctx.drawImage(rover.dead,
-      rover.position[0]*canvas.width/grid.size-0.5*canvas.width/grid.size/2,
-      rover.position[1]*canvas.height/grid.size-0.5*canvas.height/grid.size/2,
-      1.5*canvas.width/grid.size,
-      1.5*canvas.height/grid.size);
-
-    // Final message asking to reload page
-    ctx.fillStyle = rover.color;
-    ctx.font = 0.07*canvas.width +"px Ubuntu";
-    ctx.textAlign = "center";
-    ctx.fillText(rover.name + " " + rover.message,0.5*canvas.width,0.4*canvas.height);
-    ctx.fillText("Press enter to continue",0.5*canvas.width,0.6*canvas.height);
-
-    // Changes variable theEnd to true
-    theEnd = true;
-
-    // Adds one point to the other rover's score
-    rover.enemy.score+=1;
-    $(rover.enemy.valueName).html(rover.enemy.score);
-
+    runIfBlocked(grid, rover);
     return;
   }
 
   // Checks if the next position is blocked by the other rover
   if (isOther(myGrid, rover, rover.nextPosition[0], rover.nextPosition[1])) {
-    console.log(rover.enemy.name + " was destroyed by " + rover.name);
-    ctx.drawImage(rover.enemy.dead,
-      rover.enemy.position[0]*canvas.width/grid.size-0.5*canvas.width/grid.size/2,
-      rover.enemy.position[1]*canvas.height/grid.size-0.5*canvas.height/grid.size/2,
-      1.5*canvas.width/grid.size,
-      1.5*canvas.height/grid.size);
-
-    // Final message asking to reload page
-    ctx.fillStyle = rover.enemy.color;
-    ctx.font = 0.07*canvas.width +"px Ubuntu";
-    ctx.textAlign = "center";
-    ctx.fillText(rover.enemy.name + " was destroyed by " + rover.name,0.5*canvas.width,0.4*canvas.height);
-    ctx.fillText("Press enter to continue",0.5*canvas.width,0.6*canvas.height);
-
-    // Changes variable theEnd to true
-    theEnd = true;
-
-    // Adds one point to this rover's score
-    rover.score+=1;
-    $(rover.valueName).html(rover.score);
-
+    runIfOther(grid, rover);
     return;
   }
-
-  // Draws the background in the rover's position (which is moving to nextPosition)
-  ctx.drawImage(grid.background,
-    rover.position[0]*canvas.width/grid.size,
-    rover.position[1]*canvas.height/grid.size,
-    canvas.width/grid.size,
-    canvas.height/grid.size);ctx.lineWidth ="1px";
-  ctx.strokeStyle = "grey";
-  ctx.strokeRect(rover.position[0]*canvas.width/grid.size,rover.position[1]*canvas.height/grid.size,canvas.width/grid.size,canvas.height/grid.size);
-
-  // Draws the rover in the nextPosition
-  drawRotatedImage(grid,
-    rover,
-    rover.alive,
-    rover.nextPosition[0]*canvas.width/grid.size+canvas.width/grid.size/2,
-    rover.nextPosition[1]*canvas.height/grid.size+canvas.height/grid.size/2,
-    canvas.width/grid.size,
-    canvas.height/grid.size);
-
-  // Updates position with nextPosition
-  rover.position[0] = rover.nextPosition[0];
-  rover.position[1] = rover.nextPosition[1];
-
-  // Prints position to console
-  printPosition(grid, rover);
+  runIfGo(grid, rover);
 }
 
 // Moves back (against the current direction)
@@ -314,80 +331,16 @@ function goBack(grid, rover) {
 
   // In case the nextPosition is blocked by an obstacle, the rover explodes and loses the game
   if (isBlocked(myGrid, rover.nextPosition[0], rover.nextPosition[1])) {
-    console.log(rover.name + " " + rover.message);
-    ctx.drawImage(rover.dead,
-      rover.position[0]*canvas.width/grid.size-0.5*canvas.width/grid.size/2,
-      rover.position[1]*canvas.height/grid.size-0.5*canvas.height/grid.size/2,
-      1.5*canvas.width/grid.size,
-      1.5*canvas.height/grid.size);
-
-    // Final message asking to reload page
-    ctx.fillStyle = rover.color;
-    ctx.font = 0.07*canvas.width +"px Ubuntu";
-    ctx.textAlign = "center";
-    ctx.fillText(rover.name + " " + rover.message,0.5*canvas.width,0.4*canvas.height);
-    ctx.fillText("Press enter to continue",0.5*canvas.width,0.6*canvas.height);
-
-    // Changes variable theEnd to true
-    theEnd = true;
-
-    // Adds one point to the other rover's score
-    rover.enemy.score+=1;
-    $(rover.enemy.valueName).html(rover.enemy.score);
-
+    runIfBlocked(grid, rover);
     return;
   }
 
   // Checks if the next position is blocked by the other rover
   if (isOther(myGrid, rover, rover.nextPosition[0], rover.nextPosition[1])) {
-    console.log(rover.enemy.name + " was destroyed by " + rover.name);
-    ctx.drawImage(rover.enemy.dead,
-      rover.enemy.position[0]*canvas.width/grid.size-0.5*canvas.width/grid.size/2,
-      rover.enemy.position[1]*canvas.height/grid.size-0.5*canvas.height/grid.size/2,
-      1.5*canvas.width/grid.size,
-      1.5*canvas.height/grid.size);
-
-    // Final message asking to reload page
-    ctx.fillStyle = rover.enemy.color;
-    ctx.font = 0.07*canvas.width +"px Ubuntu";
-    ctx.textAlign = "center";
-    ctx.fillText(rover.enemy.name + " was destroyed by " + rover.name,0.5*canvas.width,0.4*canvas.height);
-    ctx.fillText("Press enter to continue",0.5*canvas.width,0.6*canvas.height);
-
-    // Changes variable theEnd to true
-    theEnd = true;
-
-    // Adds one point to this rover's score
-    rover.score+=1;
-    $(rover.valueName).html(rover.score);
-
+    runIfOther(grid, rover);
     return;
   }
-
-  // Draws the rover in the nextPosition
-  drawRotatedImage(grid,
-    rover,
-    rover.alive,
-    rover.nextPosition[0]*canvas.width/grid.size+canvas.width/grid.size/2,
-    rover.nextPosition[1]*canvas.height/grid.size+canvas.height/grid.size/2,
-    canvas.width/grid.size,
-    canvas.height/grid.size);
-
-  // Draws the background in the rover's position (which is moving to nextPosition)
-  ctx.drawImage(grid.background,
-    rover.position[0]*canvas.width/grid.size,
-    rover.position[1]*canvas.height/grid.size,
-    canvas.width/grid.size,
-    canvas.height/grid.size);ctx.lineWidth ="1px";
-  ctx.strokeStyle = "grey";
-  ctx.strokeRect(rover.position[0]*canvas.width/grid.size,rover.position[1]*canvas.height/grid.size,canvas.width/grid.size,canvas.height/grid.size);
-
-  // Updates position with nextPosition
-  rover.position[0] = rover.nextPosition[0];
-  rover.position[1] = rover.nextPosition[1];
-
-  // Prints position to console
-  printPosition(grid, rover);
+  runIfGo(grid, rover);
 }
 
 // Turns left
@@ -509,6 +462,27 @@ function followInstructions(grid, rover, directions) {
   }
 }
 
+// Puts a rover in automated move (avoiding obstacles but not the other rover)
+function autoMove(grid, rover) {
+  rover.automated = true;
+  if (!theEnd) {
+    var order = Math.floor(Math.random()*4);
+    if (order<1.5) {
+      goForward(grid, rover);
+    }
+    else if (order <2.5) {
+      goBack(grid, rover);
+    }
+    else if (order <3.25) {
+      turnLeft(grid, rover);
+    }
+    else {
+      turnRight(grid, rover);
+    }
+    setTimeout(function() { autoMove(grid, rover); }, 300);
+  }
+}
+
 // Draws the initial grid with obstacles and rovers in the canvas
 function initGrid(grid, rover) {
 
@@ -575,6 +549,9 @@ function initGrid(grid, rover) {
       }
     }
   }
+
+  // Puts the enemy in automated move
+  autoMove(grid, rover.enemy);
 }
 
 // Allows the use of keys to move the two rovers (myRover1: arrows, myRover2: wasd)
