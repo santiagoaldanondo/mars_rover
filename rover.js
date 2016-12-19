@@ -7,7 +7,8 @@
 // 1. One of the rovers crashes against an obstacle --> The other rover gets a point
 // 2. One of the rovers hits the other rover --> The one who hits gets a point
 
-// CLASS' DECLARATION
+
+// CLASSES
 
 // Definition of the class Grid, with the constructor and three methods (setObstacles,
 // isBlocked and initGrid)
@@ -107,7 +108,6 @@ class Grid {
 // the direction they are pointing, their alive and dead images, a message and color in case they crash,
 // their enemy, their score and the name of the variable holding that score, and the boolean automated
 // showing if they are on autoMove. It also defines methods for the class
-
 class Rover {
 	constructor( name, position, nextPosition, direction, alive, dead, message, color,
     enemy, score, valueName, automated ) {
@@ -511,6 +511,8 @@ class Rover {
 }
 
 
+// GLOBAL FUNCTIONS
+
 // Allows the use of the arrow keys to move player1. In a game is finished, it
 // waits for the "key enter" to be pressed to keep playing
 $( document ).bind( "keydown", function( key ) {
@@ -542,6 +544,7 @@ $( document ).bind( "keydown", function( key ) {
 
 } );
 
+
 // GLOBAL VARIABLES
 
 // Creates a variable to exit every movement method (goForward, goBack, turnRight, turnLeft)
@@ -550,6 +553,7 @@ var theEnd = false;
 
 // Creates an array containing the cardinal points (ordered clockwise)
 var cardinalPoints = [ "N", "E", "S", "W" ];
+
 
 // INSTANTIATION
 
@@ -566,7 +570,9 @@ var badGuy1 = new Rover( "Alien", [], [], "", "scorpion", "splash", "SMASHED",
 // The enemy value of player1 can be updated after badGuy1 is created.
 player1.enemy = badGuy1;
 
-// INITIATES GAME AND PRINT TO CONSOLE FUNCTIONS WHEN THE DOM AND IMAGES ARE LOADED
+
+// START GAME AND PRINT TO CONSOLE FUNCTIONS WHEN THE DOM AND IMAGES ARE LOADED
+
 window.onload = function() {
 
   // Draws the map with the obstacles and rovers
