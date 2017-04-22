@@ -21,7 +21,7 @@ img, #myCanvasHidden {
   display: none;
 }
 
-.score {
+.board {
   float: left;
   width: 68px;
   max-width: 68px;
@@ -33,16 +33,16 @@ img, #myCanvasHidden {
   padding: 10px;
 }
 
-#value1, #value2 {
+#lifes-value, #score-value {
   float: right;
   display: inline-block;
 }
 
-#score1 {
+#lifes {
   color: darkblue;
 }
 
-#score2 {
+#score {
   color: darkred;
 }
 
