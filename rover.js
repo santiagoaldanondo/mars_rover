@@ -23,12 +23,12 @@ class Grid {
 		this.background = document.getElementById(background);
 	}
 
-  // DECLARATION OF METHODS
+// DECLARATION OF METHODS
 
-  // GRID METHOD: Creates obstacles in the grid
+// GRID METHOD: Creates obstacles in the grid
 	setObstacles() {
 		var numberObstacles = Math.floor(Math.random() * Math.pow(this.size, 2) / 10 +
-      Math.pow(this.size, 2) / 20);
+Math.pow(this.size, 2) / 20);
 		for (var i = 0; i < numberObstacles; i++) {
 			this.obstaclesCoords[i] = [];
 			this.obstaclesCoords[i][0] = Math.floor(Math.random() * this.size);
@@ -36,11 +36,11 @@ class Grid {
 		}
 	}
 
-  // GRID METHOD: Checks if a given position is blocked by an obstacle
+// GRID METHOD: Checks if a given position is blocked by an obstacle
 	isBlocked(firstCoord, secondCoord) {
 		for (var obstacle = 0; obstacle < this.obstaclesCoords.length; obstacle++) {
 			if ((firstCoord === this.obstaclesCoords[obstacle][0]) &&
-        (secondCoord === this.obstaclesCoords[obstacle][1])) {
+(secondCoord === this.obstaclesCoords[obstacle][1])) {
 				return true;
 			}
 		}
@@ -56,7 +56,7 @@ class Grid {
 class Rover {
 
 	constructor(name, position, nextPosition, direction, alive, dead, message, color,
-  enemy, score, scoreId, lifes, lifesId, automated) {
+enemy, score, scoreId, lifes, lifesId, automated) {
 		this.name = name;
 		this.position = position;
 		this.nextPosition = nextPosition;
@@ -72,68 +72,70 @@ class Rover {
 		this.lifesId = lifesId;
 		this.automated = automated;
 
-		// Includes this instance in the array
+// Includes this instance in the array
 		Rover.allInstances.push(this);
 	}
 
-  // DECLARATION OF METHODS
+// DECLARATION OF METHODS
 
-  // ROVER METHOD: Sets the starting position and direction of the rover
+// ROVER METHOD: Sets the starting position and direction of the rover
 	setOrigin(grid) {
 		this.position[0] = Math.floor(Math.random() * grid.size);
 		this.position[1] = Math.floor(Math.random() * grid.size);
 
 		if (grid.isBlocked(this.position[0], this.position[1]) ||
-			this.isSame(this.position[0], this.position[1]) ||
-      this.isOther(this.position[0], this.position[1])) {
+this.isSame(this.position[0], this.position[1]) ||
+this.isOther(this.position[0], this.position[1])) {
 			this.setOrigin(grid);
 		}
 		this.direction = Math.floor(Math.random() * 4);
 
-		// Sets the rover's nextPosition to the current position
+// Sets the rover's nextPosition to the current position
 		this.nextPosition[0] = this.position[0];
 		this.nextPosition[1] = this.position[1];
 	}
 
-  // ROVER METHOD: Draws an image of the rover in the canvas, pointing in the required direction (includes background)
+// ROVER METHOD: Draws an image of the rover in the canvas, pointing in the required direction (includes background)
 	drawRotatedImage(grid) {
 
-    // Draws the background in the rover's position (to hide the previous image of the rover)
+// Draws the background in the rover's position (to hide the previous image of the rover)
 		grid.ctx.drawImage(grid.background,
-      this.position[0] * grid.cnv.width / grid.size,
-      this.position[1] * grid.cnv.height / grid.size,
-      grid.cnv.width / grid.size,
-      grid.cnv.height / grid.size); grid.ctx.lineWidth = "1px";
+this.position[0] * grid.cnv.width / grid.size,
+this.position[1] * grid.cnv.height / grid.size,
+grid.cnv.width / grid.size,
+grid.cnv.height / grid.size); grid.ctx.lineWidth = "1px";
 		grid.ctx.strokeStyle = "grey";
 		grid.ctx.strokeRect(this.position[0] * grid.cnv.width / grid.size,
-      this.position[1] * grid.cnv.height / grid.size, grid.cnv.width / grid.size,
-      grid.cnv.height / grid.size);
+this.position[1] * grid.cnv.height / grid.size, grid.cnv.width / grid.size,
+grid.cnv.height / grid.size);
 
-    // save the current co-ordinate system
+// save the current co-ordinate system
 		grid.ctx.save();
 
-    // move to the middle of where we want to draw our image
+// move to the middle of where we want to draw our image
 		grid.ctx.translate(this.position[0] * grid.cnv.width / grid.size +
-      grid.cnv.width / grid.size / 2,
-      this.position[1] * grid.cnv.height / grid.size + grid.cnv.height / grid.size / 2);
+grid.cnv.width / grid.size / 2,
+this.position[1] * grid.cnv.height / grid.size + grid.cnv.height / grid.size / 2);
 
-    // rotate around that point, converting the angle from degrees to radians
+// rotate around that point, converting the angle from degrees to radians
 		grid.ctx.rotate(angle[this.direction] * Math.PI / 180);
 
-    // draw it up and to the left by half the width and height of the image
+// draw it up and to the left by half the width and height of the image
 		grid.ctx.drawImage(this.alive, -grid.cnv.width / grid.size / 2,
-      -grid.cnv.height / grid.size / 2, grid.cnv.width / grid.size, grid.cnv.height / grid.size);
+-grid.cnv.height / grid.size / 2, grid.cnv.width / grid.size, grid.cnv.height / grid.size);
 
-    // Restore the co-ords to how they were before
+// Restore the co-ords to how they were before
 		grid.ctx.restore();
 	}
 
-  // ROVER METHOD: Takes the this.nextPosition back to the grid (across the edges) if it is out of boundaries
+// ROVER METHOD: Takes the this.nextPosition back to the grid (across the edges) if it is out of boundaries
 	adjustToGrid(grid) {
 		if (this.nextPosition[0] < 0) {
 			this.nextPosition[0] %= grid.size;
+
+
 			this.nextPosition[0] += grid.size;
-		}  else {
+		}		else {
 			this.nextPosition[0] %= grid.size;
 		}
 
@@ -145,7 +147,7 @@ class Rover {
 		}
 	}
 
-  // ROVER METHOD: Checks if a given position is blocked by other rover (one of them is player1)
+// ROVER METHOD: Checks if a given position is blocked by other rover (one of them is player1)
 	isOther(firstCoord, secondCoord) {
 		for (var i in Rover.allInstances) {
 			if ((Rover.allInstances[i] !== this) &&
@@ -384,11 +386,11 @@ class Rover {
 			var order = Math.floor(Math.random() * 4);
 			if (order < 2) {
 				this.goMove(grid, "forward");
-			}    else if (order < 2.75) {
+			}  else if (order < 2.75) {
 				this.goMove(grid, "back");
-			}    else if (order < 3.5) {
+			}  else if (order < 3.5) {
 				this.turn(grid, "left");
-			}    else {
+			}  else {
 				this.turn(grid, "right");
 			}
 			var self = this;
